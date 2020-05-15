@@ -114,6 +114,21 @@ class Monster extends Controller {
 				weather = wData.weather
 			}
 
+			if (data.pokemon_id >= 1 && data.pokemon_id <= 151) {
+				data.genname = 'Gen 1'
+			} else if (data.pokemon_id >= 152 && data.pokemon_id <= 251) {
+				data.genname = 'Gen 2'
+			} else if (data.pokemon_id >= 252 && data.pokemon_id <= 386) {
+				data.genname = 'Gen 3'
+			} else if (data.pokemon_id >= 387 && data.pokemon_id <= 493) {
+				data.genname = 'Gen 4'
+			} else if (data.pokemon_id >= 494 && data.pokemon_id <= 649) {
+				data.genname = 'Gen 5'
+			} else if (data.pokemon_id >= 650 && data.pokemon_id <= 721) {
+				data.genname = 'Gen 6'
+			} else if (data.pokemon_id >= 722 && data.pokemon_id <= 809) {
+				data.genname = 'Gen 7'
+			}
 
 			const encountered = !(!(['string', 'number'].includes(typeof data.individual_attack) && (+data.individual_attack + 1))
 			|| !(['string', 'number'].includes(typeof data.individual_defense) && (+data.individual_defense + 1))
