@@ -121,6 +121,7 @@ class Monster extends Controller {
 
 			data.name = this.translator.translate(monster.name)
 			data.formname = monster.form.name
+			data.costumename = this.utilData.costumes[data.costume]
 			data.iv = encountered ? ((data.individual_attack + data.individual_defense + data.individual_stamina) / 0.45).toFixed(2) : -1
 			data.individual_attack = encountered ? data.individual_attack : 0
 			data.individual_defense = encountered ? data.individual_defense : 0
