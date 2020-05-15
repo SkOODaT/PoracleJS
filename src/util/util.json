@@ -203,17 +203,14 @@
 		"26": "Pokemon Alignment(s): {{alignments}}",
     		"27": "Invasion Category(s): {{categories}}"
 	},
-	
 	"alignments": {
    		"1": "Shadow",
     		"2": "Purified"
  	},
-	
 	"categories": {
     		"1": "Team Leader",
     		"2": "Grunt"
   	},
-	
 	"throwType": {
 		"10": "Nice",
 		"11": "Great",
