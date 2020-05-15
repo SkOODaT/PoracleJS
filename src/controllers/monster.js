@@ -142,6 +142,7 @@ class Monster extends Controller {
 			data.gameweatheremoji = this.utilData.weather[weather] ? this.translator.translate(this.utilData.weather[weather].emoji) : ''
 			data.applemap = `https://maps.apple.com/maps?daddr=${data.latitude},${data.longitude}`
 			data.mapurl = `https://www.google.com/maps/search/?api=1&query=${data.latitude},${data.longitude}`
+			data.pmapurl = `${this.config.general.pmapUrl}@/${data.latitude}/${data.longitude}/15`
 			data.color = monster.types[0].color
 			data.ivcolor = this.findIvColor(data.iv)
 			data.tth = moment.preciseDiff(Date.now(), data.disappear_time * 1000, true)
