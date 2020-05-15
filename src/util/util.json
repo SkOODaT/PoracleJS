@@ -86,15 +86,15 @@
 			"emoji": ""
 		},
 		"1": {
-			"name": "male",
+			"name": "Male",
 			"emoji": "♂️"
 		},
 		"2": {
-			"name": "female",
+			"name": "Female",
 			"emoji": "♀️"
 		},
 		"3": {
-			"name": "genderless",
+			"name": "Netural",
 			"emoji": "⚧"
 		}
 	},
