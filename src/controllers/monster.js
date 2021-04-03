@@ -1,6 +1,7 @@
 const geoTz = require('geo-tz')
 const moment = require('moment-timezone')
 const Controller = require('./controller')
+const costumeData = require('../util/costumes') // --------- SkOODaT Costumes
 require('moment-precise-range-plugin')
 
 class Monster extends Controller {
@@ -128,6 +129,8 @@ class Monster extends Controller {
 				}
 			}
 			if (data.form === undefined || data.form === null) data.form = 0
+			if (data.costume === undefined || data.costume === null) data.costume = 0 // --------- SkOODaT Costumes
+
 			const monster = this.GameData.monsters[`${data.pokemon_id}_${data.form}`] ? this.GameData.monsters[`${data.pokemon_id}_${data.form}`] : this.GameData.monsters[`${data.pokemon_id}_0`]
 
 			if (!monster) {
@@ -153,6 +156,7 @@ class Monster extends Controller {
 			data.nameEng = monster.name
 			data.formNameEng = monster.form.name
 			data.formId = data.form
+			data.costumeName = costumeData[data.costume] // --------- SkOODaT Costumes
 			data.iv = encountered ? ((data.individual_attack + data.individual_defense + data.individual_stamina) / 0.45).toFixed(2) : -1
 			data.atk = encountered ? data.individual_attack : 0
 			data.def = encountered ? data.individual_defense : 0
@@ -178,6 +182,7 @@ class Monster extends Controller {
 			data.appleMapUrl = `https://maps.apple.com/maps?daddr=${data.latitude},${data.longitude}`
 			data.googleMapUrl = `https://www.google.com/maps/search/?api=1&query=${data.latitude},${data.longitude}`
 			data.wazeMapUrl = `https://www.waze.com/ul?ll=${data.latitude},${data.longitude}&navigate=yes&zoom=17`
+			data.mapperMapUrl = `${this.config.general.mapUrl}@/${data.latitude}/${data.longitude}/15`
 			data.color = this.GameData.utilData.types[monster.types[0].name].color
 			data.ivColor = this.findIvColor(data.iv)
 			data.tthSeconds = data.disappear_time - Date.now() / 1000
@@ -195,7 +200,21 @@ class Monster extends Controller {
 			data.mapurl = data.googleMapUrl // deprecated
 			data.ivcolor = data.ivColor // deprecated
 			//			data.gif = pokemonGif(Number(data.pokemon_id)) // deprecated
-			data.imgUrl = `${this.config.general.imgUrl}pokemon_icon_${data.pokemon_id.toString().padStart(3, '0')}_${data.form ? data.form.toString() : '00'}.png`
+			//data.imgUrl = `${this.config.general.imgUrl}pokemon_icon_${data.pokemon_id.toString().padStart(3, '0')}_${data.form ? data.form.toString() : '00'}.png`
+
+			// SkOODaT Img Formatting -----------------------------------------
+			if (data.costume > 0 | data.form > 0) {
+				if (data.costume > 0) {
+					data.imgUrl = `${this.config.general.imgUrl}pokemon/${data.pokemon_id.toString()}-${data.costume.toString()}.png`
+				} else if (data.form > 0) {
+					data.imgUrl = `${this.config.general.imgUrl}pokemon/${data.pokemon_id.toString()}-${data.form.toString()}.png`
+				}
+			} else {
+				data.imgUrl = `${this.config.general.imgUrl}pokemon/${data.pokemon_id.toString()}.png`
+			}
+			//this.log.info(data.imgUrl)
+			// -----------------------------------------
+
 			data.stickerUrl = `${this.config.general.stickerUrl}pokemon_icon_${data.pokemon_id.toString().padStart(3, '0')}_${data.form ? data.form.toString() : '00'}.webp`
 			data.types = this.getPokemonTypes(data.pokemon_id, data.form)
 			data.alteringWeathers = this.getAlteringWeathers(data.types, data.weather)
@@ -461,10 +480,19 @@ class Monster extends Controller {
 					data.weatherNextEmoji = translator.translate(this.GameData.utilData.weather[data.weatherNext].emoji)
 				}
 
+				// SkOODaT Emoji Formatting -----------------------------------------
 				const e = []
+				const tn = []
 				monster.types.forEach((type) => {
+					tn.push(translator.translate(type.name))
 					e.push(translator.translate(this.GameData.utilData.types[type.name].emoji))
 				})
+				data.emojiTypeName1 = tn[0]
+				data.emojiTypeName2 = tn[1]
+				data.emojiType1 = e[0]
+				data.emojiType2 = e[1]
+				// -----------------------------------------
+
 				data.emoji = e
 				data.emojiString = e.join('')
 

@@ -22,6 +22,7 @@
       "alertMinimumTime" : 120,                 // time inside which alerts will not be generated (120s - 2mins before expiration no alert)
     // imgUrl - base url for poracle creation of {{imgUrl}} reference
       "imgUrl": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/PMSF_icons_large/",
+      "mapUrl": "https://YOURMAPURL.com/",
     // stickerUrl - base url for poracle creation of {{stickerUrl}} reference for telegram webp stickers
       "stickerUrl": "https://raw.githubusercontent.com/whitewillem/PogoAssets/resized/icons_large/telegram/",
       "locale": "en",                           // default locale for Poracle - eg en, fr, de, it, ru
