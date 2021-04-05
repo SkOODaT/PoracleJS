@@ -107,6 +107,7 @@ class Quest extends Controller {
 			data.googleMapUrl = `https://www.google.com/maps/search/?api=1&query=${data.latitude},${data.longitude}`
 			data.appleMapUrl = `https://maps.apple.com/maps?daddr=${data.latitude},${data.longitude}`
 			data.wazeMapUrl = `https://www.waze.com/ul?ll=${data.latitude},${data.longitude}&navigate=yes&zoom=17`
+			data.mapperMapUrl = `${this.config.general.mapUrl}@/${data.latitude}/${data.longitude}/15`
 			data.disappearTime = moment.tz(new Date(), this.config.locale.time, geoTz(data.latitude, data.longitude).toString()).endOf('day')
 			data.applemap = data.appleMapUrl // deprecated
 			data.mapurl = data.googleMapUrl // deprecated
@@ -121,7 +122,7 @@ class Quest extends Controller {
 			}
 			if (data.pokestop_url) data.pokestopUrl = data.pokestop_url
 			if (data.tth.firstDateWasLater || ((data.tth.hours * 3600) + (data.tth.minutes * 60) + data.tth.seconds) < minTth) {
-				log.debug(`${data.pokestop_id}: quest already disappeared or is about to expire in: ${data.tth.hours}:${data.tth.minutes}:${data.tth.seconds}`)
+				log.info(`${data.pokestop_id}: quest already disappeared or is about to expire in: ${data.tth.hours}:${data.tth.minutes}:${data.tth.seconds}`)
 				return []
 			}
 
@@ -138,8 +139,41 @@ class Quest extends Controller {
 			data.energyMonsters = data.rewardData.energyMonsters
 
 			data.matched = await this.pointInArea([data.latitude, data.longitude])
+
+            // SkOODaT Tile Formatting -----------------------------------------
+			if (data.rewardData.monsters[1]) {
+				data.tileimgUrl = `pokemon/${data.rewardData.monsters[1].toString()}`
+			}
+			if (data.rewardData.items[1]) {
+				data.tileimgUrl = `rewards/reward_${data.rewardData.items[1]}_1`
+			}
+			if (data.dustAmount) {
+				data.tileimgUrl = `rewards/reward_stardust`
+			}
+			if (data.energyAmount) {
+				data.tileimgUrl = `rewards/reward_mega_energy_${data.energyMonsters[1]}`
+			}
+
+			// SkOODaT Gen Formatting -----------------------------------------
+			if (data.monsters[1] >= 1 && data.monsters[1] <= 151) {
+				data.genNameData = 'Generation 1'
+			} else if (data.monsters[1] >= 152 && data.monsters[1] <= 251) {
+				data.genNameData = 'Generation 2'
+			} else if (data.monsters[1] >= 252 && data.monsters[1] <= 386) {
+				data.genNameData = 'Generation 3'
+			} else if (data.monsters[1] >= 387 && data.monsters[1] <= 493) {
+				data.genNameData = 'Generation 4'
+			} else if (data.monsters[1] >= 494 && data.monsters[1] <= 649) {
+				data.genNameData = 'Generation 5'
+			} else if (data.monsters[1] >= 650 && data.monsters[1] <= 721) {
+				data.genNameData = 'Generation 6'
+			} else if (data.monsters[1] >= 722 && data.monsters[1] <= 809) {
+				data.genNameData = 'Generation 7'
+			}
+			// -----------------------------------------
+
 			data.imgUrl = data.rewardData.monsters[1]
-				? `${this.config.general.imgUrl}pokemon_icon_${data.rewardData.monsters[1].toString().padStart(3, '0')}_00.png`
+				? `${this.config.general.imgUrl}pokemon/${data.rewardData.monsters[1].toString()}.png`  // --------- SkOODaT IMG MOD
 				: 'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/jonmrich/assets/20150203194453red_pin.png'
 			data.stickerUrl = data.rewardData.monsters[1]
 				? `${this.config.general.stickerUrl}pokemon_icon_${data.rewardData.monsters[1].toString().padStart(3, '0')}_00.webp`
@@ -207,6 +241,7 @@ class Quest extends Controller {
 				const language = cares.language || this.config.general.locale
 				const translator = this.translatorFactory.Translator(language)
 
+				data.genName = translator.translate(data.genNameData) // --------- SkOODaT Gen
 				data.questString = translator.translate(data.questStringEng)
 				data.monsterNames = Object.values(this.GameData.monsters).filter((mon) => data.monsters.includes(mon.id) && !mon.form.id).map((m) => translator.translate(m.name)).join(', ')
 				data.monsterNamesEng = Object.values(this.GameData.monsters).filter((mon) => data.monsters.includes(mon.id) && !mon.form.id).map((m) => m.name).join(', ')
@@ -334,7 +369,7 @@ class Quest extends Controller {
 							let first = true
 							for (const [index, id] of Object.entries(questinfo.pokemon_ids)) {
 								if (first) {
-									pstr += `${this.GameData.monsters[id].name}`
+									pstr += `${this.GameData.monsters[`${id}_0`].name}`
 								} else {
 									pstr += (index == questinfo.pokemon_ids.length - 1) ? ` or ${this.GameData.monsters[`${id}_0`].name}` : `, ${this.GameData.monsters[`${id}_0`].name}`
 								}

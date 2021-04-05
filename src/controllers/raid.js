@@ -156,6 +156,7 @@ class Raid extends Controller {
 			data.googleMapUrl = `https://www.google.com/maps/search/?api=1&query=${data.latitude},${data.longitude}`
 			data.appleMapUrl = `https://maps.apple.com/maps?daddr=${data.latitude},${data.longitude}`
 			data.wazeMapUrl = `https://www.waze.com/ul?ll=${data.latitude},${data.longitude}&navigate=yes&zoom=17`
+			data.mapperMapUrl = `${this.config.general.mapUrl}@/${data.latitude}/${data.longitude}/15` // --------- SkOODaT MAP
 
 			if (!data.team_id) data.team_id = 0
 			if (data.name) {
@@ -183,6 +184,7 @@ class Raid extends Controller {
 
 			if (data.pokemon_id) {
 				if (data.form === undefined || data.form === null) data.form = 0
+				if (data.costume === undefined || data.costume === null) data.costume = 0  // --------- SkOODaT Costume
 				const monster = this.GameData.monsters[`${data.pokemon_id}_${data.form}`] ? this.GameData.monsters[`${data.pokemon_id}_${data.form}`] : this.GameData.monsters[`${data.pokemon_id}_0`]
 				if (!monster) {
 					this.log.warn(`${logReference}: Couldn't find monster in:`, data)
@@ -191,6 +193,7 @@ class Raid extends Controller {
 				data.pokemonId = data.pokemon_id
 				data.nameEng = monster.name
 				data.formId = monster.form.id
+				data.costumeNameData = this.GameData.utilData.costumeData[data.costume]  // --------- SkOODaT Costume
 				data.formNameEng = monster.form.name
 				data.genderDataEng = this.GameData.utilData.genders[data.gender]
 				data.evolutionNameEng = data.evolution ? this.GameData.utilData.evolution[data.evolution].name : ''
@@ -198,17 +201,58 @@ class Raid extends Controller {
 				data.formname = data.formNameEng // deprecated
 				data.evolutionname = data.evolutionNameEng // deprecated
 				//				data.gif = pokemonGif(Number(data.pokemon_id)) // deprecated
-				data.imgUrl = `${this.config.general.imgUrl}pokemon_icon_${data.pokemon_id.toString().padStart(3, '0')}_${data.form ? data.form.toString() : '00'}${data.evolution > 0 ? `_${data.evolution.toString()}` : ''}.png`
+				//data.imgUrl = `${this.config.general.imgUrl}pokemon_icon_${data.pokemon_id.toString().padStart(3, '0')}_${data.form ? data.form.toString() : '00'}${data.evolution > 0 ? `_${data.evolution.toString()}` : ''}.png`
+
+				// SkOODaT Img Formatting -----------------------------------------
+				if (data.costume > 0 | data.formId > 0) {
+					if (data.costume > 0) {
+						data.imgUrl = `${this.config.general.imgUrl}pokemon/${data.pokemon_id.toString()}-${data.costume.toString()}.png`
+					} else if (data.formId > 0) {
+						data.imgUrl = `${this.config.general.imgUrl}pokemon/${data.pokemon_id.toString()}-${data.form.toString()}.png`
+					}
+				} else {
+					data.imgUrl = `${this.config.general.imgUrl}pokemon/${data.pokemon_id.toString()}.png`
+				}
+				//this.log.info(data.imgUrl)
+				// -----------------------------------------
+
+				// SkOODaT Gen Formatting ------------------
+				if (data.pokemon_id >= 1 && data.pokemon_id <= 151) {
+					data.genNameData = 'Generation 1'
+				} else if (data.pokemon_id >= 152 && data.pokemon_id <= 251) {
+					data.genNameData = 'Generation 2'
+				} else if (data.pokemon_id >= 252 && data.pokemon_id <= 386) {
+					data.genNameData = 'Generation 3'
+				} else if (data.pokemon_id >= 387 && data.pokemon_id <= 493) {
+					data.genNameData = 'Generation 4'
+				} else if (data.pokemon_id >= 494 && data.pokemon_id <= 649) {
+					data.genNameData = 'Generation 5'
+				} else if (data.pokemon_id >= 650 && data.pokemon_id <= 721) {
+					data.genNameData = 'Generation 6'
+				} else if (data.pokemon_id >= 722 && data.pokemon_id <= 809) {
+					data.genNameData = 'Generation 7'
+				}
+				// -----------------------------------------
+
 				data.stickerUrl = `${this.config.general.stickerUrl}pokemon_icon_${data.pokemon_id.toString().padStart(3, '0')}_${data.form ? data.form.toString() : '00'}${data.evolution > 0 ? `_${data.evolution.toString()}` : ''}.webp`
 
+				// SkOODaT Emoji Formatting -----------------
 				const e = []
 				const t = []
 				const n = []
+				const tn = []
 				monster.types.forEach((type) => {
 					e.push(this.GameData.utilData.types[type.name].emoji)
 					t.push(type.id)
 					n.push(type.name)
+					tn.push(type.name)
 				})
+				data.emojiTypeName1 = tn[0]
+				data.emojiTypeName2 = tn[1]
+				data.emojiType1 = e[0]
+				data.emojiType2 = e[1]
+				// -----------------------------------------
+
 				data.types = t
 				data.typeNameEng = n
 				data.emoji = e
@@ -268,6 +312,12 @@ class Raid extends Controller {
 
 					data.name = translator.translate(data.nameEng)
 					data.formName = translator.translate(data.formNameEng)
+					data.costumeName = translator.translate(data.costumeNameData)  // --------- SkOODaT Costumes
+					data.genName = translator.translate(data.genNameData)  // --------- SkOODaT Gens
+					data.emojiTypeName1 = translator.translate(data.emojiTypeName1)  // --------- SkOODaT Emoji Fix
+					data.emojiTypeName2 = translator.translate(data.emojiTypeName2)  // --------- SkOODaT Emoji Fix
+					data.emojiType1 = translator.translate(data.emojiType1)  // --------- SkOODaT Emoji Fix
+					data.emojiType2 = translator.translate(data.emojiType2)  // --------- SkOODaT Emoji Fix
 					data.evolutionName = translator.translate(data.evolutionNameEng)
 					data.typeName = data.typeNameEng.map((type) => translator.translate(type)).join(', ')
 					data.typeEmoji = data.emoji.map((emoji) => translator.translate(emoji)).join('')
@@ -355,7 +405,7 @@ class Raid extends Controller {
 			data.tth = moment.preciseDiff(Date.now(), data.start * 1000, true)
 			data.hatchTime = moment(data.start * 1000).tz(geoTz(data.latitude, data.longitude).toString()).format(this.config.locale.time)
 			data.hatchtime = data.hatchTime // deprecated
-			data.imgUrl = `${this.config.general.imgUrl}egg${data.level}.png`
+			data.imgUrl = `${this.config.general.imgUrl}egg/${data.level}.png`
 			data.stickerUrl = `${this.config.general.stickerUrl}egg${data.level}.webp`
 
 			if (data.tth.firstDateWasLater || ((data.tth.hours * 3600) + (data.tth.minutes * 60) + data.tth.seconds) < minTth) {

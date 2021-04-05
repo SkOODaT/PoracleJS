@@ -1,7 +1,6 @@
 const geoTz = require('geo-tz')
 const moment = require('moment-timezone')
 const Controller = require('./controller')
-const costumeData = require('../util/costumes') // --------- SkOODaT Costumes
 require('moment-precise-range-plugin')
 
 class Monster extends Controller {
@@ -156,7 +155,7 @@ class Monster extends Controller {
 			data.nameEng = monster.name
 			data.formNameEng = monster.form.name
 			data.formId = data.form
-			data.costumeName = costumeData[data.costume] // --------- SkOODaT Costumes
+			data.costumeNameData = this.GameData.utilData.costumeData[data.costume] // --------- SkOODaT Costumes
 			data.iv = encountered ? ((data.individual_attack + data.individual_defense + data.individual_stamina) / 0.45).toFixed(2) : -1
 			data.atk = encountered ? data.individual_attack : 0
 			data.def = encountered ? data.individual_defense : 0
@@ -182,7 +181,7 @@ class Monster extends Controller {
 			data.appleMapUrl = `https://maps.apple.com/maps?daddr=${data.latitude},${data.longitude}`
 			data.googleMapUrl = `https://www.google.com/maps/search/?api=1&query=${data.latitude},${data.longitude}`
 			data.wazeMapUrl = `https://www.waze.com/ul?ll=${data.latitude},${data.longitude}&navigate=yes&zoom=17`
-			data.mapperMapUrl = `${this.config.general.mapUrl}@/${data.latitude}/${data.longitude}/15`
+			data.mapperMapUrl = `${this.config.general.mapUrl}@/${data.latitude}/${data.longitude}/15` // --------- SkOODaT MAP
 			data.color = this.GameData.utilData.types[monster.types[0].name].color
 			data.ivColor = this.findIvColor(data.iv)
 			data.tthSeconds = data.disappear_time - Date.now() / 1000
@@ -202,7 +201,7 @@ class Monster extends Controller {
 			//			data.gif = pokemonGif(Number(data.pokemon_id)) // deprecated
 			//data.imgUrl = `${this.config.general.imgUrl}pokemon_icon_${data.pokemon_id.toString().padStart(3, '0')}_${data.form ? data.form.toString() : '00'}.png`
 
-			// SkOODaT Img Formatting -----------------------------------------
+			// SkOODaT Img Formatting -----------------
 			if (data.costume > 0 | data.form > 0) {
 				if (data.costume > 0) {
 					data.imgUrl = `${this.config.general.imgUrl}pokemon/${data.pokemon_id.toString()}-${data.costume.toString()}.png`
@@ -213,6 +212,24 @@ class Monster extends Controller {
 				data.imgUrl = `${this.config.general.imgUrl}pokemon/${data.pokemon_id.toString()}.png`
 			}
 			//this.log.info(data.imgUrl)
+			// -----------------------------------------
+
+			// SkOODaT Gen Formatting ------------------
+			if (data.pokemon_id >= 1 && data.pokemon_id <= 151) {
+				data.genNameData = 'Generation 1'
+			} else if (data.pokemon_id >= 152 && data.pokemon_id <= 251) {
+				data.genNameData = 'Generation 2'
+			} else if (data.pokemon_id >= 252 && data.pokemon_id <= 386) {
+				data.genNameData = 'Generation 3'
+			} else if (data.pokemon_id >= 387 && data.pokemon_id <= 493) {
+				data.genNameData = 'Generation 4'
+			} else if (data.pokemon_id >= 494 && data.pokemon_id <= 649) {
+				data.genNameData = 'Generation 5'
+			} else if (data.pokemon_id >= 650 && data.pokemon_id <= 721) {
+				data.genNameData = 'Generation 6'
+			} else if (data.pokemon_id >= 722 && data.pokemon_id <= 809) {
+				data.genNameData = 'Generation 7'
+			}
 			// -----------------------------------------
 
 			data.stickerUrl = `${this.config.general.stickerUrl}pokemon_icon_${data.pokemon_id.toString().padStart(3, '0')}_${data.form ? data.form.toString() : '00'}.webp`
@@ -445,6 +462,8 @@ class Monster extends Controller {
 					name: translator.translate(data.genderDataEng.name),
 					emoji: translator.translate(data.genderDataEng.emoji),
 				}
+				data.costumeName = translator.translate(data.costumeNameData)  // --------- SkOODaT Costumes
+				data.genName = translator.translate(data.genNameData)  // --------- SkOODaT Gens
 				data.rarityName = translator.translate(data.rarityNameEng)
 				data.quickMoveName = data.weight && this.GameData.moves[data.quickMoveId] ? translator.translate(this.GameData.moves[data.quickMoveId].name) : ''
 				data.quickMoveEmoji = this.GameData.moves[data.quickMoveId] && this.GameData.utilData.types[this.GameData.moves[data.quickMoveId].type] ? translator.translate(this.GameData.utilData.types[this.GameData.moves[data.quickMoveId].type].emoji) : ''
@@ -480,12 +499,12 @@ class Monster extends Controller {
 					data.weatherNextEmoji = translator.translate(this.GameData.utilData.weather[data.weatherNext].emoji)
 				}
 
-				// SkOODaT Emoji Formatting -----------------------------------------
+				// SkOODaT Emoji Formatting ---------------
 				const e = []
 				const tn = []
 				monster.types.forEach((type) => {
-					tn.push(translator.translate(type.name))
 					e.push(translator.translate(this.GameData.utilData.types[type.name].emoji))
+					tn.push(translator.translate(type.name))
 				})
 				data.emojiTypeName1 = tn[0]
 				data.emojiTypeName2 = tn[1]
